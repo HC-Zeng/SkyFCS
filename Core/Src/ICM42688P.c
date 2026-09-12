@@ -22,9 +22,10 @@ void ICM42688_Init(void) {
     ICM42688_WriteRegister(PWR_MGMT0_REG, 0x00);
     HAL_Delay(10);
 
-    // 检查WHO_AM_I
+    // 检查WHO_AM_I：ICM-42605和ICM-42688-P在同一系列下通常返回相近的设备ID。
+    // 兼容两种常见值，避免芯片替换后初始化直接卡死。
     whoami = ICM42688_ReadRegister(WHO_AM_I_REG);
-    if(whoami != 0x47) { // ICM-42688-P的WHO_AM_I值应为0x42
+    if ((whoami != 0x42) && (whoami != 0x47)) {
         while(1);
     }
 
@@ -32,8 +33,9 @@ void ICM42688_Init(void) {
     tx_data = 0x0F; // 启用加速度计和陀螺仪
     ICM42688_WriteRegister(PWR_MGMT0_REG, tx_data);
 
-    // 配置陀螺仪
-    tx_data = (0x03 << 5) | 0x06; // ±500dps, 1kHz ODR
+    // 配置陀螺仪：GYRO_FS_SEL=1 -> ±1000dps, 1kHz ODR
+    // 该值与 datasheet 的 32.8 LSB/(deg/s) 换算一致。
+    tx_data = (0x01 << 5) | 0x06;
     ICM42688_WriteRegister(GYRO_CONFIG0_REG, tx_data);
 
     // 配置加速度计
@@ -89,9 +91,9 @@ void ConvertRawData(int16_t raw_accel[3], int16_t raw_gyro[3], float* accel_g, f
         accel_g[i] = (float)raw_accel[i] / 4096.0f; // 4096 LSB/g (对于±8g范围)
     }
 
-    // 陀螺仪转换 (±500dps范围)
+    // 陀螺仪转换 (±1000dps范围)
     for(int i = 0; i < 3; i++) {
-        gyro_dps[i] = (float)raw_gyro[i] / 65.5f; // 65.5 LSB/dps (对于±500dps范围)
+        gyro_dps[i] = (float)raw_gyro[i] / 32.8f; // 32.8 LSB/dps (对于±1000dps范围)
     }
 }
 

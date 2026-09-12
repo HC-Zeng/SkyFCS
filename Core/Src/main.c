@@ -32,7 +32,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-volatile uint32_t timer_overflow_count = 0;  // 溢出次数�?32位扩展）
+volatile uint32_t timer_overflow_count = 0;  // 溢出次数�??32位扩展）
 
 uint64_t Get_Global_Time_us(void) {
     uint32_t overflow, counter;
@@ -40,7 +40,7 @@ uint64_t Get_Global_Time_us(void) {
         overflow = timer_overflow_count;
         counter = __HAL_TIM_GET_COUNTER(&htim4);
     } while (overflow != timer_overflow_count); // 无锁校验
-    return (uint64_t)overflow * 65536 + counter; // 组合�?64位时间戳
+    return (uint64_t)overflow * 65536 + counter; // 组合�??64位时间戳
 }
 
 #ifdef __GNUC__
@@ -59,13 +59,13 @@ PUTCHAR_PROTOTYPE
 /* USER CODE BEGIN PD */
 void LedFlash(void)
 {
-    static uint64_t timeStampForLED;
-    uint64_t crrTime = Get_Global_Time_us();
-    if(crrTime > timeStampForLED+1000000)
-    {
+    // static uint64_t timeStampForLED;
+    // uint64_t crrTime = Get_Global_Time_us();
+    // if(crrTime > timeStampForLED+1000000)
+    // {
         HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
-        timeStampForLED = crrTime;
-    }
+    //     timeStampForLED = crrTime;
+    // }
 }
 /* USER CODE END PD */
 
